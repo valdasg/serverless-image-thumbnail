@@ -41,8 +41,9 @@ custom:
   pythonRequirements:
     dockerizePip: True
     
-# create function
+# create lambda functions
 functions:
+  # thumbnail generator
   s3_thumbnail_generator:
     handler: handler.s3_thumbnail_generator
     events:
@@ -51,6 +52,36 @@ functions:
          event: s3:ObjectCreated:*
          rules:
            - suffix: .png
+  # list thumbnails
+  list:
+    handler: handler.s3_get_thumbnail_urls
+    events:
+      - http:
+          path: images/all
+          method: get
+          # checks if server permits request 
+          cors: true
+  
+  # get item metadata
+  get:
+    handler: handler.s3_get_item
+    events:
+      - http:
+          # dynamically pass image id, make sure its the same as defined in schema
+          path: images/get/{id}
+          method: get 
+          cors: true
+  
+  # delete item metadata
+  delete:
+    handler: handler.s3_delete_item
+    events:
+      - http:
+          # dynamically pass image id, make sure its the same as defined in schema
+          path: images/delete/{id}
+          method: delete 
+          cors: true      
+
 # create resources
 resources:
   Resources:
@@ -63,6 +94,7 @@ resources:
         # set a primary key and hash partition
         KeySchema:
           - AttributeName: id
+          # Note all caps!
             KeyType: HASH
         # number of reads and writes per s until dynamo db returns exception  
         ProvisionedThroughput:
