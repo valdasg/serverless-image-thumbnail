@@ -14,8 +14,11 @@ dynamodb = boto3.resource(
 )
 
 def s3_thumbnail_generator(event, context):
-    #parse event
+    '''
+    Function creates thumbnails from png files as files are uploadd to S3.
+    '''
     print('EVENT:::', event)
+    #parse event for debugging
     bucket = event['Records'][0]['s3']['bucket']['name']
     key = event['Records'][0]['s3']['object']['key']
     image_size = event['Records'][0]['s3']['object']['size']
@@ -61,7 +64,6 @@ def upload_to_s3(bucket, key, image, img_size):
     image.save(out_thumbnail, 'PNG')
     out_thumbnail.seek(0)
     
-
     response = s3.put_object(
         ACL = 'public-read',
         Body = out_thumbnail,
@@ -77,11 +79,14 @@ def upload_to_s3(bucket, key, image, img_size):
     return url
 
 def s3_save_thumbnail_url_to_dynamo_db(url_path, img_size):
+    '''
+    Function creates item for dynamo db metadata.
+    '''
     # creating approximate image size
     toint = float(img_size*0.53)/1000
     table = dynamodb.Table(dbtable)
     response = table.put_item(
-        Item={
+        Item = {
             'id': str(uuid.uuid4()),
             'url': str(url_path),
             'approxReduceSize': f'{str(toint)}KB',
@@ -99,6 +104,9 @@ def s3_save_thumbnail_url_to_dynamo_db(url_path, img_size):
     }
     
 def s3_get_item(event, context):
+    '''
+    Function returns single item from dynamo db by id.
+    '''
     table = dynamodb.Table(dbtable)
     # path params from serverless.yaml
     response = table.get_item(Key = {
@@ -117,6 +125,9 @@ def s3_get_item(event, context):
     }
     
 def s3_delete_item(event, context):
+    '''
+    Function deletes single item from dynamo db by id.
+    '''
     # path params from serverless.yaml
     item_id = event['pathParameters']['id']
     
@@ -148,6 +159,7 @@ def s3_delete_item(event, context):
                 },
                 'body': json.dumps(all_good_response),
             }
+        
     return response
 
 def s3_get_thumbnail_urls(event, context):
