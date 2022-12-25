@@ -14,9 +14,7 @@ Third-party dependencies are used in app, so you will need to use a plugin `serv
 ```bash
 serverless plugin install -n serverless-python-requirements
 ```
-
 In order to deploy app you need to clone and run the following command from parrent folder:
-
 ```
 $ serverless deploy
 ```
@@ -24,7 +22,6 @@ Framework creates s3 bucket, lambda functions, iam role and api service.
 
 ### Clean up
 After playing with app, delete contents of S3 bucket and run:
-
 ```
 sls remove
 ```
