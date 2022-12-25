@@ -155,7 +155,7 @@ def s3_get_thumbnail_urls(event, context):
     Function lists all urls from the db in json format
     '''
     table = dynamodb.Table(dbtable)
-    response = table.scam()
+    response = table.scan()
     data = response['Items']
     # go through data in the loop
     while 'LastEvaluatedKey' in response:
