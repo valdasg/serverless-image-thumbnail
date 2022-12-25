@@ -71,7 +71,7 @@ def upload_to_s3(bucket, key, image, img_size):
     )
 
     print(response)
-    url = 's3.meta.endpoint_url, bucket, key'
+    url = f'{s3.meta.endpoint_url}/{bucket}/{key}'
     s3_save_thumbnail_url_to_dynamo_db(url_path = url, img_size = img_size)
 
     return url
@@ -159,8 +159,8 @@ def s3_get_thumbnail_urls(event, context):
     data = response['Items']
     # go through data in the loop
     while 'LastEvaluatedKey' in response:
-        response = table.scam(ExclusiveStartKey = response['LastEvaluatedKey'])
-        data.extend9respose['Items']
+        response = table.scan(ExclusiveStartKey = response['LastEvaluatedKey'])
+        data.extend(response['Items'])
     return {
         'statusCode': 200,
         'headers': {'Content-Type': 'application/json'},
